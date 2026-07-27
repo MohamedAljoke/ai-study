@@ -15,3 +15,10 @@ type Factory struct {
 	Name string
 	New  func(rng *rand.Rand) Strategy
 }
+
+var All = []Factory{
+	{Name: "random", New: NewRandom},
+	{Name: "hunt", New: NewHuntTarget},
+	{Name: "parity", New: NewParity},
+	{Name: "density", New: NewDensity},
+}

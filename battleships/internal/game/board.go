@@ -25,11 +25,6 @@ const (
 	Vertical   Orientation = "vertical"
 )
 
-var orientations = []Orientation{
-	Horizontal,
-	Vertical,
-}
-
 func (b *Board) At(p Position) Cell {
 	if !p.Valid() {
 		return CellEmpty
@@ -42,6 +37,10 @@ func (b *Board) Ships() []*Ship {
 }
 
 func (b *Board) String() string {
+	return b.Render(true)
+}
+
+func (b *Board) Render(revealShips bool) string {
 	var sb strings.Builder
 
 	sb.WriteString("  ")
@@ -53,7 +52,11 @@ func (b *Board) String() string {
 	for row := range BoardSize {
 		fmt.Fprintf(&sb, "%d ", row)
 		for col := range BoardSize {
-			fmt.Fprintf(&sb, "%c ", b.grid[row][col].Rune())
+			c := b.grid[row][col]
+			if c == CellShip && !revealShips {
+				c = CellEmpty
+			}
+			fmt.Fprintf(&sb, "%c ", c.Rune())
 		}
 		sb.WriteByte('\n')
 	}
@@ -66,7 +69,7 @@ func (b *Board) CanPlace(t ShipType, origin Position, o Orientation) error {
 		return fmt.Errorf("invalid orientation: %v", o)
 	}
 
-	for _, p := range span(origin, t.Size, o) {
+	for _, p := range Span(origin, t.Size, o) {
 		if !p.Valid() {
 			return fmt.Errorf("%s at %v %v: runs off the board", t.Name, origin, o)
 		}
@@ -83,7 +86,7 @@ func (b *Board) Place(t ShipType, origin Position, o Orientation) (*Ship, error)
 		return nil, err
 	}
 
-	cells := span(origin, t.Size, o)
+	cells := Span(origin, t.Size, o)
 	for _, p := range cells {
 		b.grid[p.Row][p.Col] = CellShip
 	}
@@ -94,7 +97,8 @@ func (b *Board) Place(t ShipType, origin Position, o Orientation) (*Ship, error)
 	return ship, nil
 }
 
-func span(origin Position, size int, o Orientation) []Position {
+// Span returns the cells a ship of the given size covers from origin.
+func Span(origin Position, size int, o Orientation) []Position {
 	cells := make([]Position, size)
 	for i := range cells {
 		if o == Horizontal {
@@ -159,4 +163,15 @@ func (b *Board) AllSunk() bool {
 
 func (o Orientation) Valid() bool {
 	return o == Horizontal || o == Vertical
+}
+
+func ParseOrientation(s string) (Orientation, error) {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "h", string(Horizontal):
+		return Horizontal, nil
+	case "v", string(Vertical):
+		return Vertical, nil
+	}
+
+	return "", fmt.Errorf("%q: want h or v", s)
 }
