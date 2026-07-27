@@ -67,12 +67,32 @@ class Projeto:
         return self.raiz / "narration.wav"
 
     @property
-    def tapes(self) -> Path:
-        return self.raiz / "tapes"
-
-    @property
     def thumb_vars(self) -> Path:
         return self.raiz / "thumb.vars.json"
+
+    @property
+    def assets(self) -> Path:
+        """Onde eu largo o material pronto — animação, gravação, imagem.
+
+        Fora do `build/` (§4) de propósito: é material meu, feito fora do studio, que
+        nenhum comando sabe refazer.
+        """
+        return self.raiz / "assets"
+
+    def asset_de(self, id: str) -> Path | None:
+        """O arquivo da cena `id`, se ele já existe. A extensão é escolha minha.
+
+        Busca por glob em vez de exigir `.mp4`: o Manim cospe mp4, um diagrama sai png,
+        uma captura pode ser mov, e o pipeline não tem por que ter opinião sobre isso.
+        """
+        achados = sorted(p for p in self.assets.glob(f"{id}.*") if p.is_file())
+        if len(achados) > 1:
+            nomes = ", ".join(p.name for p in achados)
+            raise ErroDeUso(
+                f"a cena '{id}' tem mais de um arquivo em assets/: {nomes} — "
+                f"apague os que não valem, senão a escolha é sorteio"
+            )
+        return achados[0] if achados else None
 
     # descartável
     @property
@@ -116,15 +136,33 @@ class Projeto:
         return self.build / "shorts.json"
 
     @property
-    def assets(self) -> Path:
-        return self.build / "assets"
+    def pedidos_md(self) -> Path:
+        return self.build / "pedidos.md"
 
-    def asset(self, id: str, extensao: str) -> Path:
-        return self.assets / f"{id}.{extensao.lstrip('.')}"
+    def substituto(self, id: str) -> Path:
+        """O quadro que entra no lugar de uma cena que ainda não existe.
+
+        Um caminho só pros dois casos — quadro congelado da cena anterior e cartela com
+        o id — porque pra montagem eles são a mesma coisa: uma imagem parada que dura o
+        tempo da cena.
+        """
+        return self.build / "substitutos" / f"{id}.png"
+
+    @property
+    def segmentos(self) -> Path:
+        return self.build / "segmentos"
 
     @property
     def video(self) -> Path:
         return self.build / "video.mp4"
+
+    def video_de(self, qualidade: str) -> Path:
+        """O final é `video.mp4`; o rascunho fica ao lado, pra eu ver os dois."""
+        return self.video if qualidade == "final" else self.build / f"video.{qualidade}.mp4"
+
+    def segmento(self, qualidade: str, id: str) -> Path:
+        """Rascunho e final têm resolução diferente — não podem dividir o mesmo cache."""
+        return self.segmentos / qualidade / f"{id}.mp4"
 
     @property
     def legenda(self) -> Path:

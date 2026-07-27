@@ -3,16 +3,17 @@
 Só as linhas com `>` viram narração. Todo o resto é anotação minha, a máquina ignora.
 Os marcadores valem a partir da primeira palavra do parágrafo seguinte.
 
-    <!-- cena: terminal id=play-demo fonte=tapes/play.tape -->
-    <!-- cena: codigo id=parse-position arquivo=battleships/internal/game/position.go linhas=12-28 -->
+    <!-- cena: terminal id=play-demo nota="uma partida curta jogada na mão" -->
+    <!-- cena: codigo id=parse-position arquivo=projects/battleships/internal/game/position.go linhas=12-28 -->
     <!-- cena: manim id=density-mapa classe=HeatMap dados=build/density.json turnos=1-12 -->
     <!-- cena: card id=fechamento titulo="Cinco coisas" -->
-    <!-- cena: tela id=web-demo nota="gravação minha" -->
+    <!-- cena: tela id=web-demo nota="site e terminal lado a lado" -->
     <!-- short: inicio id=uma-linha titulo="Uma linha, 15 tiros a menos" -->
     <!-- short: fim id=uma-linha -->
 
-`fonte=` e `dados=` são relativos à pasta do vídeo; `arquivo=` é relativo à raiz do repositório.
-`id` é kebab-case e único no vídeo — ele vira nome de arquivo.
+`id` é kebab-case e único no vídeo — ele vira o nome do arquivo que eu largo em
+`assets/<id>.<ext>` depois de produzir a cena. `arquivo=` é relativo à raiz do repositório;
+`dados=` e `nota=` são recado meu e saem na folha de pedidos como estão.
 
 Apagar tudo daqui pra cima antes de gravar.
 

@@ -11,9 +11,13 @@ from studio import __version__
 from studio.alinhador import IDIOMA
 from studio.comandos.alinhar import alinhar
 from studio.comandos.duble import duble
+from studio.comandos.montar import montar
 from studio.comandos.narracao import narracao
 from studio.comandos.novo import novo
+from studio.comandos.pedidos import pedidos_cmd
 from studio.comandos.status import status
+from studio.comandos.timeline import timeline_cmd
+from studio.comandos.tudo import tudo
 from studio.projeto import ErroDeUso
 from studio.texto import PALAVRAS_POR_MINUTO
 
@@ -70,13 +74,40 @@ PIPELINE: list[Comando] = [
         alinhar,
         flags=(Flag("--idioma", str, IDIOMA, "idioma do modelo de alinhamento"),),
     ),
-    Comando("timeline", "marcadores + words.json → timeline.json", 3),
-    Comando("assets", "gera as cenas: terminal, código, cards, manim", 4),
-    Comando("montar", "timeline + assets → video.mp4", 5),
+    Comando(
+        "timeline",
+        "marcadores + words.json → timeline.json",
+        3,
+        "numero",
+        timeline_cmd,
+        flags=(Flag("--forcar", bool, False, "sobrescreve mesmo se eu tiver editado à mão"),),
+    ),
+    Comando(
+        "pedidos",
+        "timeline → pedidos.md, o que eu tenho que produzir",
+        4,
+        "numero",
+        pedidos_cmd,
+    ),
+    Comando(
+        "montar",
+        "timeline + assets/ → video.mp4",
+        5,
+        "numero",
+        montar,
+        flags=(Flag("--rascunho", bool, False, "720p e preset veloz, pra revisar rápido"),),
+    ),
     Comando("shorts", "os trechos marcados → verticais com legenda queimada", 7),
     Comando("thumb", "thumb.vars.json → thumb.png", 8),
     Comando("meta", "título, descrição, capítulos, tags", 8),
-    Comando("tudo", "encadeia narracao → montar", 5),
+    Comando(
+        "tudo",
+        "encadeia narracao → montar",
+        5,
+        "numero",
+        tudo,
+        flags=(Flag("--rascunho", bool, False, "720p e preset veloz, pra revisar rápido"),),
+    ),
 ]
 
 
@@ -110,9 +141,12 @@ def construir_parser() -> argparse.ArgumentParser:
             help="NN-slug" if comando.argumento == "nome" else "número do vídeo, ex: 01",
         )
         for flag in comando.flags:
-            sub.add_argument(
-                flag.nome, type=flag.tipo, default=flag.padrao, help=flag.ajuda
-            )
+            if flag.tipo is bool:  # chave liga/desliga, não recebe valor
+                sub.add_argument(flag.nome, action="store_true", help=flag.ajuda)
+            else:
+                sub.add_argument(
+                    flag.nome, type=flag.tipo, default=flag.padrao, help=flag.ajuda
+                )
         sub.set_defaults(_comando=comando)
 
     return parser

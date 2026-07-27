@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from studio import ffmpeg
 from studio import texto as t
-from studio.projeto import ErroDeUso
 
 TAXA = 48000
 CANAIS = 1
@@ -35,17 +34,8 @@ class Audio:
         )
 
 
-def _rodar(comando: list[str], oque: str) -> subprocess.CompletedProcess:
-    try:
-        return subprocess.run(comando, capture_output=True, text=True, check=True)
-    except FileNotFoundError as erro:
-        raise ErroDeUso(f"{comando[0]} não encontrado — instale pra {oque}") from erro
-    except subprocess.CalledProcessError as erro:
-        raise ErroDeUso(f"{comando[0]} falhou ao {oque}: {erro.stderr.strip()}") from erro
-
-
 def sondar(wav: Path) -> Audio:
-    saida = _rodar(
+    saida = ffmpeg.executar(
         [
             "ffprobe", "-v", "error", "-of", "json",
             "-show_entries", "format=duration:stream=channels,sample_rate",
@@ -65,7 +55,7 @@ def sondar(wav: Path) -> Audio:
 
 def loudness(wav: Path) -> float | None:
     """LUFS integrado. None quando o ffmpeg não devolve o resumo — é aviso, não erro."""
-    saida = _rodar(
+    saida = ffmpeg.executar(
         ["ffmpeg", "-nostats", "-i", str(wav), "-filter:a", "ebur128", "-f", "null", "-"],
         f"medir o volume de {wav.name}",
     ).stderr

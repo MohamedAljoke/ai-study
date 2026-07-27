@@ -8,24 +8,37 @@ Este diretório é a implementação.
 
 ## O que é meu, o que é da máquina
 
-Eu faço três coisas: **aprovo o roteiro**, **leio em voz alta** e **gravo as cenas que não dá
-pra scriptar**. Todo o resto é do `studio`.
+Eu faço três coisas: **aprovo o roteiro**, **leio em voz alta** e **produzo as cenas** — Manim,
+gravação de tela, imagem. O `studio` faz as três mecânicas: converte posição no texto em tempo,
+me diz o que produzir e com que duração, e junta tudo com a narração.
+
+**O studio não gera mídia.** Ele orquestra. Por quê, em
+[docs/README.md](docs/README.md#o-studio-é-orquestrador-não-gerador).
 
 ## Estado
 
-**Sprints 0 e 1 prontos:** `studio novo`, `studio status` e `studio narracao` funcionam. O
-roteiro do vídeo 01 está marcado e gera narração. Existe também `studio duble`, uma voz
-sintética temporária que destrava o código enquanto eu não gravo. Os outros comandos existem
-no `--help` e respondem "não implementado — sprint N". Plano em [`docs/`](docs/README.md).
+**Sprints 0 a 5 prontos — o pipeline vai do `script.md` ao `video.mp4`.** O vídeo 01 tem 18
+cenas, 07:02, e monta inteiro com qualquer subconjunto dos assets pronto: cena que ainda não
+existe congela o último quadro da anterior, e o que falta aparece em `build/pedidos.md`, não
+no silêncio ([convenção §3](docs/convencoes.md)). Plano em [`docs/`](docs/README.md).
 
 ```
-make setup
+make setup             # ambiente Python (o ffmpeg vem do sistema)
+
 make status V=01
-make narracao V=01
+make narracao V=01     # → narration.txt, o texto que eu leio
 make duble V=01        # voz falsa, só pra testar o pipeline
+make alinhar V=01      # → words.json + legendas
+make timeline V=01     # → timeline.json + shorts.json
+make pedidos V=01      # → build/pedidos.md, o que eu tenho que produzir
+                       # [eu produzo e largo em assets/<id>.<ext>]
+make montar V=01       # → build/video.mp4
+make rascunho V=01     # o mesmo em 540p, pra revisar em ciclo curto
+
+make tudo V=01         # tudo isso em ordem
 ```
 
-Próximo: sprint 2, alinhamento.
+Próximo: as animações do vídeo 01 em Manim — trabalho fora do studio — e o sprint 7 (shorts).
 
 ## Os comandos (alvo)
 
@@ -36,7 +49,8 @@ studio narracao 01       # script.md → narration.txt (o texto que eu leio)
 studio duble 01          # voz sintética temporária, quando eu ainda não gravei
 studio alinhar 01        # + wav → words.json + legendas
 studio timeline 01       # marcadores + words.json → timeline.json + shorts.json
-studio assets 01         # gera as cenas: vhs, freeze, manim, replay, cards
+studio pedidos 01        # → pedidos.md: o que produzir, com duração e fala
+                         # [eu produzo e largo em assets/<id>.<ext>]
 studio montar 01         # → video.mp4 + .srt
 studio shorts 01         # → shorts/*.mp4 verticais com legenda queimada
 studio thumb 01          # → thumb.png (+ variantes)
@@ -47,12 +61,12 @@ studio tudo 01           # ← o alvo real
 
 ## Stack
 
-Python. WhisperX (alinhamento), Manim Community (animação), Playwright (thumb/cards), VHS e
-freeze (terminal/código), ffmpeg (montagem), piper (a voz de teste). O Go entra só do lado do
-jogo, exportando dados que o pipeline consome.
+Python. WhisperX (alinhamento), ffmpeg (montagem), piper (a voz de teste), Playwright (thumb,
+sprint 8). Manim é ferramenta minha, fora do pipeline. O Go entra só do lado do jogo,
+exportando dados que as animações consomem.
 
-As dependências pesadas são extras opcionais (`alinhamento`, `assets`, `manim`, `duble`) — o
-`studio` em si não depende de nada, e cada sprint só puxa o que precisa.
+As dependências pesadas são extras opcionais (`alinhamento`, `duble`) — o `studio` em si não
+depende de nada, e cada sprint só puxa o que precisa.
 
 ## Estrutura
 
@@ -64,13 +78,19 @@ studio/
     01-batalha-naval/
       script.md          ← roteiro aprovado, com marcadores (versionado)
       narration.wav      ← gravado por mim (versionado)
-      tapes/*.tape       ← fontes VHS (versionado)
+      assets/<id>.<ext>  ← a mídia de cada cena, produzida por mim (versionado)
       thumb.vars.json    ← versionado
       build/             ← TUDO descartável, gitignored
         narration.txt        ← o que eu leio, e o que o alinhador recebe
         narration.md         ← a mesma narração com títulos, pra eu ler na tela
         marcadores.json      ← cenas e shorts por índice de palavra
         narration.duble.wav  ← voz sintética, quando eu ainda não gravei
+        words.json           ← o segundo de cada palavra
+        timeline.json        ← cena X entra em 04:12.3   ← o artefato central
+        pedidos.md           ← o que produzir: id, duração, fala   ← a encomenda
+        substitutos/         ← o quadro congelado de quem ainda não existe
+        segmentos/           ← cada cena já normalizada, pra emendar
+        video.mp4            ← o alvo
   templates/
 ```
 

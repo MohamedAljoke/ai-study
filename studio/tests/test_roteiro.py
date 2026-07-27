@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pytest
 
-from studio import roteiro, texto
+from studio import leitura, roteiro, texto
 from studio.projeto import ErroDeUso
 
 ORIGEM = Path("script.md")
 
 
 def ler(fonte: str) -> roteiro.Roteiro:
-    return roteiro.interpretar(fonte, origem=ORIGEM)
+    return leitura.interpretar(fonte, origem=ORIGEM)
 
 
 def erro_de(fonte: str) -> str:
@@ -153,7 +153,7 @@ def test_tipo_de_cena_desconhecido():
 
 
 def test_parametro_obrigatorio_faltando():
-    assert "sem fonte=" in erro_de("<!-- cena: terminal id=x -->\n> Uma.\n")
+    assert "sem arquivo=" in erro_de("<!-- cena: codigo id=x -->\n> Uma.\n")
 
 
 def test_parametro_desconhecido():

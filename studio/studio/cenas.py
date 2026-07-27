@@ -1,4 +1,12 @@
-"""Tipos de cena e seus parâmetros. O sprint 4 lê esta mesma tabela."""
+"""Tipos de cena. Depois da simplificação, o tipo é **rótulo**, não motor.
+
+Nenhum comando gera mídia (§3): todo asset é arquivo que eu produzo fora e largo em
+`assets/<id>.<ext>`. Então o tipo não escolhe ferramenta nem extensão — ele existe pra
+duas coisas: validar o marcador no `script.md` e me dizer, na folha de pedidos, que
+espécie de trabalho aquela cena é.
+
+Tipo novo é uma linha aqui. Sem código junto.
+"""
 
 from __future__ import annotations
 
@@ -11,65 +19,36 @@ class TipoCena:
     descricao: str
     obrigatorios: tuple[str, ...] = ()
     opcionais: tuple[str, ...] = ()
-    fontes: tuple[str, ...] = ()
-    adiados: tuple[str, ...] = ()
-    manual: bool = False
-    base: str = "video"
 
     @property
     def parametros(self) -> tuple[str, ...]:
-        return self.obrigatorios + self.opcionais
+        return self.obrigatorios + self.opcionais + COMUNS
+
+
+COMUNS = ("nota",)
+"""Parâmetro que todo tipo aceita: um recado meu, que sai na folha de pedidos."""
 
 
 TIPOS: dict[str, TipoCena] = {
     t.nome: t
     for t in (
-        TipoCena(
-            "terminal",
-            "gravação de terminal a partir de um .tape (VHS)",
-            obrigatorios=("fonte",),
-            adiados=("fonte",),
-        ),
+        TipoCena("manim", "animação de algoritmo", opcionais=("classe", "dados", "turnos")),
         TipoCena(
             "codigo",
-            "trecho de código renderizado",
+            "trecho de código na tela",
             obrigatorios=("arquivo",),
             opcionais=("linhas", "destaque"),
-            fontes=("arquivo",),
-            base="repo",
         ),
-        TipoCena(
-            "manim",
-            "animação de algoritmo",
-            obrigatorios=("classe",),
-            opcionais=("dados", "turnos"),
-            adiados=("dados",),
-        ),
-        TipoCena(
-            "replay",
-            "replay de partida a partir de snapshot do Go",
-            obrigatorios=("dados",),
-            opcionais=("estrategia",),
-            adiados=("dados",),
-        ),
+        TipoCena("terminal", "gravação de terminal"),
+        TipoCena("tela", "gravação de tela minha"),
         TipoCena(
             "card",
             "cartela de texto",
             obrigatorios=("titulo",),
-            opcionais=("subtitulo", "template"),
+            opcionais=("subtitulo",),
         ),
-        TipoCena(
-            "diagrama",
-            "diagrama Mermaid",
-            obrigatorios=("fonte",),
-            adiados=("fonte",),
-        ),
-        TipoCena(
-            "tela",
-            "gravação minha de tela — vira placeholder até eu gravar",
-            opcionais=("nota",),
-            manual=True,
-        ),
+        TipoCena("diagrama", "diagrama"),
+        TipoCena("replay", "replay de partida", opcionais=("dados", "estrategia")),
     )
 }
 

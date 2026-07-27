@@ -15,7 +15,7 @@ Sprint chato e curto. O valor dele é não ter que decidir estrutura de pasta no
 $ studio novo 01-batalha-naval
 criado videos/01-batalha-naval/
   script.md         (template)
-  tapes/
+  assets/
   thumb.vars.json   (template)
   build/            (gitignored)
 
@@ -39,12 +39,12 @@ eu ter que lembrar da ordem.
 3. **Resolução de vídeo.** `01` → `videos/01-batalha-naval/`. Prefixo numérico basta, não
    precisa digitar o slug.
 4. **Objeto de projeto.** Uma classe que sabe os caminhos (`script`, `narration_txt`,
-   `wav`, `timeline`, `build/assets/<id>`). Todo sprint seguinte usa isso; ninguém monta
+   `wav`, `timeline`, `assets/<id>`). Todo sprint seguinte usa isso; ninguém monta
    caminho com string solta.
 5. **`studio novo`** a partir de um template versionado.
 6. **`studio status`** — inspeciona o que existe no disco e imprime o próximo passo.
 7. **Cache utilitário.** Uma função `precisa_refazer(saida, entradas, params) -> bool` por
-   hash. Escrita uma vez aqui, usada por todos os geradores. Ver
+   hash. Escrita uma vez aqui, usada por todas as etapas caras. Ver
    [convenções §2](convencoes.md).
 8. **`.gitignore`** de `build/`.
 

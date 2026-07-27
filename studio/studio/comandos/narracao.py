@@ -5,17 +5,16 @@ from __future__ import annotations
 import json
 from collections import Counter
 
-from studio import cache
+from studio import cache, leitura, validacao
 from studio import roteiro as parser
 from studio import texto as t
 from studio.projeto import resolver
 
-FERRAMENTA = "narracao/" + cache.versao_de(parser, t)
+FERRAMENTA = "narracao/" + cache.versao_do_comando(__name__, leitura, validacao, parser, t)
 
 EXPLICACAO = {
     "codigo": "código na narração — eu leio diferente do que está escrito",
     "digito": 'dígito na narração — eu leio "noventa e cinco", o alinhador vê "95"',
-    "fonte": "fonte de cena que ainda não existe — o sprint 4 cria",
 }
 
 
@@ -44,10 +43,6 @@ def _avisos(roteiro: parser.Roteiro) -> list[str]:
             linhas.append(f"    linha {aviso.linha}: {trecho}")
         if len(achados) > 3:
             linhas.append(f"    (+{len(achados) - 3})")
-
-    for cena in roteiro.cenas:
-        if cena.manual:
-            linhas.append(f"  cena '{cena.id}' é tipo=tela — precisa de gravação minha")
 
     if len(roteiro.shorts) < 3:
         linhas.append(
@@ -86,7 +81,7 @@ def _resumo(roteiro: parser.Roteiro, wpm: int) -> None:
 
 def narracao(numero: str, wpm: int = t.PALAVRAS_POR_MINUTO) -> int:
     projeto = resolver(numero)
-    roteiro = parser.ler(projeto)
+    roteiro = leitura.ler(projeto)
     projeto.garantir_build()
 
     conteudos = (

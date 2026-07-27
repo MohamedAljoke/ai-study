@@ -45,10 +45,10 @@ ler na tela sem me perder) e `build/marcadores.json` (o que o sprint 3 cruza com
 Marcadores são comentários HTML: não renderizam, não atrapalham a leitura do roteiro.
 
 ```markdown
-<!-- cena: terminal id=play-demo fonte=tapes/play.tape -->
+<!-- cena: terminal id=play-demo nota="uma partida curta jogada na mão" -->
 > Loop clássico: pergunta, lê, valida, repete.
 
-<!-- cena: codigo id=parse-position arquivo=internal/game/position.go linhas=12-28 -->
+<!-- cena: codigo id=parse-position arquivo=projects/battleships/internal/game/position.go linhas=12-28 -->
 > Repara numa coisa: quase todo o meu main.go é conversa com humano.
 
 <!-- cena: manim id=density-mapa classe=HeatMap dados=build/01/density.json turnos=1-12 -->
@@ -134,10 +134,9 @@ exemplo pra dar de referência ao modelo.
 
 ## Em paralelo: o spike de Manim
 
-Fora da ordem, começar **uma** cena Manim (`parity`). Não deu tempo aqui; passa pro sprint 2,
-que tem espera embutida enquanto eu gravo. Não é pra
-entregar nada — é pra medir quanto uma cena custa. Ver [sprint 6](sprint-06-manim.md) e a
-justificativa no [índice](README.md).
+Fora da ordem, começar **uma** cena Manim (`parity`), pra medir quanto uma cena custa. Não deu
+tempo aqui. Virou trabalho fora do studio — ver
+[como eu faço as animações](README.md#como-eu-faço-as-animações-fora-do-studio).
 
 ## Fora de escopo
 

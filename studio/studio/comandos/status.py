@@ -6,15 +6,25 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from studio import roteiro as parser
+from studio import leitura
+from studio import pedidos as registro_pedidos
 from studio import texto as t
 from studio.comandos import alinhar as gerador_alinhar
 from studio.comandos import duble as gerador_duble
+from studio.comandos import montar as gerador_montar
 from studio.comandos import narracao as gerador_narracao
+from studio.comandos import timeline as gerador_timeline
 from studio.comandos.novo import _titulo
+from studio.comandos.pedidos import levantar
 from studio.projeto import ErroDeUso, Projeto, listar, pasta_templates, resolver
 
 FALTANDO, OK, VELHO, ERRO, DUBLE = "faltando", "ok", "desatualizado", "erro", "dublê"
+PARCIAL = "parcial"
+"""Asset faltando não trava o pipeline: o vídeo monta congelando o quadro anterior (§3).
+Como `dublê`, é estado que aparece no relatório sem virar o "próximo passo"."""
+
+SEGUEM = (OK, DUBLE, PARCIAL)
+"""Estados que não impedem o passo seguinte de ser o próximo."""
 
 
 @dataclass
@@ -41,7 +51,7 @@ def _roteiro(projeto: Projeto) -> Etapa:
         return Etapa("roteiro", FALTANDO, "template não editado", "escrever o roteiro")
 
     try:
-        roteiro = parser.ler(projeto)
+        roteiro = leitura.ler(projeto)
     except ErroDeUso as erro:
         return Etapa("roteiro", ERRO, str(erro), "corrigir o roteiro")
 
@@ -110,12 +120,44 @@ def _etapas(projeto: Projeto) -> list[Etapa]:
         _derivado(
             "timeline",
             projeto.timeline,
-            [projeto.script, projeto.palavras],
+            [projeto.marcadores, projeto.palavras],
             f"studio timeline {n}",
+            em_dia=lambda: gerador_timeline.em_dia(projeto),
         ),
-        _derivado("assets", projeto.assets, [projeto.timeline], f"studio assets {n}"),
-        _derivado("montagem", projeto.video, [projeto.timeline], f"studio montar {n}"),
+        _assets(projeto),
+        _derivado(
+            "montagem",
+            projeto.video,
+            [projeto.timeline],
+            f"studio montar {n}",
+            em_dia=lambda: gerador_montar.em_dia(projeto),
+        ),
     ]
+
+
+def _assets(projeto: Projeto) -> Etapa:
+    """Quantas cenas já têm arquivo meu. Nunca fica "ok" com asset faltando.
+
+    O vídeo monta mesmo assim (§3), congelando o quadro anterior — e é justamente por
+    isso que o buraco tem que aparecer aqui: no vídeo ele não aparece.
+    """
+    n = projeto.numero
+    if not projeto.timeline.is_file():
+        return Etapa("assets", FALTANDO, dica=f"studio timeline {n}")
+
+    lista = levantar(projeto)
+    pendentes = registro_pedidos.faltando(lista)
+    if not lista:
+        return Etapa("assets", FALTANDO, "o roteiro não tem cena nenhuma", "marcar cenas")
+    if not pendentes:
+        return Etapa("assets", OK, f"{len(lista)} de {len(lista)}")
+
+    segundos = registro_pedidos.segundos_faltando(lista)
+    detalhe = (
+        f"{len(lista) - len(pendentes)} de {len(lista)} — faltam "
+        f"{t.formatar_duracao(segundos)} de vídeo"
+    )
+    return Etapa("assets", PARCIAL, detalhe, f"studio pedidos {n}")
 
 
 def _imprimir(projeto: Projeto) -> None:
@@ -129,7 +171,7 @@ def _imprimir(projeto: Projeto) -> None:
             linha += f" — {etapa.detalhe}"
         print(linha)
 
-    pendente = next((e for e in etapas if e.estado not in (OK, DUBLE)), None)
+    pendente = next((e for e in etapas if e.estado not in SEGUEM), None)
     print()
     if pendente is None:
         print("próximo:  nada — o vídeo está montado")
@@ -138,6 +180,8 @@ def _imprimir(projeto: Projeto) -> None:
 
     if any(e.estado == DUBLE for e in etapas):
         print("⚠ rodando com dublê — o vídeo final ainda depende de eu gravar")
+    if parcial := next((e for e in etapas if e.estado == PARCIAL), None):
+        print(f"⚠ assets: {parcial.detalhe} — {parcial.dica}")
 
 
 def status(numero: str | None) -> int:

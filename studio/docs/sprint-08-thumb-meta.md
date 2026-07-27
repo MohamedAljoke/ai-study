@@ -32,7 +32,7 @@ pesada (Inter / Archivo Black / Anton), opcionalmente um recorte da tela do cód
 
 ```json
 { "titulo": "95 → 44", "subtitulo": "o mesmo jogo, outro algoritmo",
-  "destaque": "44", "recorte": "build/assets/parse-position.png" }
+  "destaque": "44", "recorte": "assets/parse-position.png" }
 ```
 
 ### Tarefas

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -53,8 +54,36 @@ def versao_de(*modulos) -> str:
     return h.hexdigest()[:12]
 
 
+def versao_do_comando(nome: str, *modulos) -> str:
+    """`versao_de` incluindo o próprio comando. Use `__name__` no primeiro argumento.
+
+    O comando não é só orquestração: é nele que mora a serialização do JSON de saída.
+    Mudar o formato do `words.json` sem invalidar o cache devolveria o arquivo no
+    formato velho, em silêncio — o modo de falha que a §2 existe pra impedir.
+    """
+    return versao_de(sys.modules[nome], *modulos)
+
+
 def _marca(saida: Path) -> Path:
     return saida.parent / f"{saida.name}.hash"
+
+
+def _do_arquivo(caminho: Path) -> str:
+    h = hashlib.sha256()
+    _somar_arquivo(h, caminho)
+    return h.hexdigest()
+
+
+def _linhas_da_marca(saida: Path) -> list[str]:
+    """Linha 1: assinatura das entradas. Linha 2 (opcional): hash da saída gerada.
+
+    Marca de uma versão antiga só tem a linha 1 — nesse caso não dá pra saber se o
+    arquivo foi editado, e a resposta honesta é "não sei", que aqui vira "não foi".
+    """
+    marca = _marca(saida)
+    if not marca.is_file():
+        return []
+    return marca.read_text().splitlines()
 
 
 def precisa_refazer(
@@ -67,11 +96,25 @@ def precisa_refazer(
     if not saida.exists():
         return True
 
-    marca = _marca(saida)
-    if not marca.is_file():
+    linhas = _linhas_da_marca(saida)
+    if not linhas:
         return True
 
-    return marca.read_text().strip() != assinatura(entradas, params, ferramenta)
+    return linhas[0].strip() != assinatura(entradas, params, ferramenta)
+
+
+def foi_editado(saida: Path) -> bool:
+    """O arquivo mudou depois de gerado — alguém (eu) mexeu nele à mão.
+
+    O `timeline.json` é editável de propósito (convenções §5): é a válvula de escape
+    pra quando o alinhador erra uma palavra técnica. Sobrescrever esse conserto em
+    silêncio seria pior que não ter a válvula.
+    """
+    saida = Path(saida)
+    linhas = _linhas_da_marca(saida)
+    if len(linhas) < 2 or not saida.is_file():
+        return False
+    return linhas[1].strip() != _do_arquivo(saida)
 
 
 def registrar(
@@ -86,4 +129,4 @@ def registrar(
 
     marca = _marca(saida)
     marca.parent.mkdir(parents=True, exist_ok=True)
-    marca.write_text(assinatura(entradas, params, ferramenta) + "\n")
+    marca.write_text(f"{assinatura(entradas, params, ferramenta)}\n{_do_arquivo(saida)}\n")

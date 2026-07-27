@@ -18,7 +18,7 @@ vira vídeo próprio (lista no fim).
 
 **Tela:** tabela do benchmark rodando, números aparecendo.
 
-<!-- cena: terminal id=abertura-bench fonte=tapes/bench.tape -->
+<!-- cena: terminal id=abertura-bench nota="go test -bench rodando, saída completa" -->
 > Eu fiz o computador jogar Batalha Naval trinta e duas mil vezes.
 
 <!-- short: inicio id=95-para-44 titulo="De 95 tiros para 44" -->
@@ -67,7 +67,7 @@ for row := range BoardSize {
 **Mostrar rápido:** o `Cell` como `uint8` com `.`, `S`, `X`, `M` e o `Render(revealShips bool)` —
 o mesmo desenho, agora com a regra "esconde o navio do inimigo" dentro de um `bool`.
 
-<!-- cena: codigo id=render-bool arquivo=battleships/internal/game/board.go linhas=43-60 -->
+<!-- cena: codigo id=render-bool arquivo=projects/battleships/internal/game/board.go linhas=43-60 -->
 > Um `bool` de parâmetro e o mesmo código desenha o seu tabuleiro com os navios à mostra e o
 > do inimigo debaixo da neblina.
 
@@ -80,7 +80,7 @@ o mesmo desenho, agora com a regra "esconde o navio do inimigo" dentro de um `bo
 **Tela:** rodar `go run ./cmd/play`, posicionar a frota, atirar. Deixar aparecer erro de
 propósito: digitar `Z9`, digitar `A0 x`, atirar duas vezes na mesma casa.
 
-<!-- cena: terminal id=play-demo fonte=tapes/play.tape -->
+<!-- cena: terminal id=play-demo nota="uma partida curta jogada na mão" -->
 > Loop clássico: pergunta, lê, valida, repete.
 
 ```go
@@ -89,7 +89,7 @@ if err != nil { fmt.Println(err); continue }
 if theirs.At(p).Shot() { fmt.Println("já atirou aqui"); continue }
 ```
 
-<!-- cena: codigo id=parse-position arquivo=battleships/internal/game/position.go linhas=23-40 -->
+<!-- cena: codigo id=parse-position arquivo=projects/battleships/internal/game/position.go linhas=23-40 -->
 > Repara numa coisa: quase todo o meu `main.go` é **conversa com humano**. Perguntar,
 > reclamar, formatar, desenhar dois tabuleiros lado a lado.
 >
@@ -139,7 +139,7 @@ res, err := b.Fire(game.Position{Row: 0, Col: 0})
 // res.Hit == true, res.Sunk.Type.Name == "Destroyer"
 ```
 
-<!-- cena: codigo id=fire-direto arquivo=battleships/internal/game/board.go linhas=114-135 -->
+<!-- cena: codigo id=fire-direto arquivo=projects/battleships/internal/game/board.go linhas=114-135 -->
 > Sem pipe, sem stdout, sem substring. **A dor do teste foi o que me mostrou onde cortar o
 > código.**
 <!-- short: fim id=teste-stdout -->
@@ -161,7 +161,7 @@ battleships/
     targeting/   ← como a IA escolhe o tiro
 ```
 
-<!-- cena: terminal id=tree-internal fonte=tapes/tree.tape -->
+<!-- cena: terminal id=tree-internal nota="tree internal/, pra mostrar a separação" -->
 > Faz um `grep` por `os.Stdin` dentro de `internal/`. **Zero.** Por `bufio`. Zero.
 >
 > O pacote `game` não sabe que existe terminal. Não sabe que existe usuário. Ele sabe
@@ -173,7 +173,7 @@ func (b *Board) Fire(p Position) (Result, error)
 func (b *Board) AllSunk() bool
 ```
 
-<!-- cena: codigo id=dominio-assinaturas arquivo=battleships/internal/game/board.go linhas=150-160 -->
+<!-- cena: codigo id=dominio-assinaturas arquivo=projects/battleships/internal/game/board.go linhas=150-160 -->
 > Isso é o que as pessoas chamam de **domínio**. E a definição prática, sem livro, é: é a
 > parte do código que continua igual se amanhã eu jogar o terminal fora.
 >
@@ -205,7 +205,7 @@ type Strategy interface {
 }
 ```
 
-<!-- cena: codigo id=strategy-interface arquivo=battleships/internal/targeting/strategy.go linhas=9-12 -->
+<!-- cena: codigo id=strategy-interface arquivo=projects/battleships/internal/targeting/strategy.go linhas=9-12 -->
 > "Chuta um lugar" e "toma o resultado". Todas as IAs implementam isso, e o jogo não sabe
 > qual delas está jogando.
 
@@ -274,7 +274,7 @@ if (p.Row+p.Col)%2 == 0 { hunt = append(hunt, p) }
 
 **Tela:** `go test ./internal/bench/ -v` rodando e cuspindo a matriz.
 
-<!-- cena: terminal id=bench-rodando fonte=tapes/bench.tape -->
+<!-- cena: terminal id=bench-rodando nota="o bench das quatro estratégias" -->
 > Cada estratégia joga **duas mil partidas** contra **quatro jeitos diferentes de posicionar a frota** —
 > uniforme, colada nas bordas, no centro, espalhada. Dezesseis combinações, trinta e duas mil
 > partidas, uns onze segundos.

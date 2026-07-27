@@ -3,11 +3,11 @@ STUDIO := uv run studio
 
 .DEFAULT_GOAL := ajuda
 
-.PHONY: ajuda setup test check fmt limpar novo status narracao duble alinhar timeline assets montar shorts thumb meta tudo
+.PHONY: ajuda setup test check fmt limpar novo status narracao duble alinhar timeline pedidos montar rascunho shorts thumb meta tudo
 
 ajuda:
 	@echo "manutenção"
-	@echo "  make setup            instala o ambiente"
+	@echo "  make setup            instala o ambiente Python"
 	@echo "  make test             roda os testes"
 	@echo "  make check            lint"
 	@echo "  make fmt              formata"
@@ -20,8 +20,9 @@ ajuda:
 	@echo "  make duble V=01        → voz sintética, pra testar sem gravar"
 	@echo "  make alinhar V=01      → words.json + legendas"
 	@echo "  make timeline V=01     → timeline.json + shorts.json"
-	@echo "  make assets V=01       → as cenas"
-	@echo "  make montar V=01       → video.mp4"
+	@echo "  make pedidos V=01      → pedidos.md, o que eu tenho que produzir"
+	@echo "  make montar V=01       → video.mp4 (junta assets/ com a narração)"
+	@echo "  make rascunho V=01     → video.rascunho.mp4, 540p, pra revisar rápido"
 	@echo "  make shorts V=01       → verticais"
 	@echo "  make thumb V=01        → thumb.png"
 	@echo "  make meta V=01         → título, descrição, capítulos"
@@ -30,7 +31,7 @@ ajuda:
 	@$(STUDIO) --version
 
 setup:
-	uv sync
+	uv sync --extra alinhamento --extra duble
 
 test:
 	uv run pytest -q
@@ -61,5 +62,8 @@ novo:
 status:
 	$(STUDIO) status $(V)
 
-narracao duble alinhar timeline assets montar shorts thumb meta tudo: exige-v
+narracao duble alinhar timeline pedidos montar shorts thumb meta tudo: exige-v
 	$(STUDIO) $@ $(V)
+
+rascunho: exige-v
+	$(STUDIO) montar $(V) --rascunho

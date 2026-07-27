@@ -1,6 +1,15 @@
 # Sprint 5 — Montagem
 
-**Objetivo:** `timeline.json` + assets + áudio → `video.mp4`.
+> **Feito.** `studio montar 01` → `build/video.mp4`, 18 cenas, 421,83s em 1920x1080@30, com a
+> narração inteira e o `.srt` ao lado. O `--rascunho` sai em 540p em ~40s.
+>
+> Diferenças do plano abaixo. **Sem cross-fade** (tarefa 3): a transição encadeia os segmentos
+> e mataria o cache por cena, que é o que faz trocar o quadro de uma cena que falta custar um
+> segmento em vez de sete minutos — fica como dívida em `convencoes.md` §10. **Um MP4 por cena antes do
+> concat**, em vez de um `filter_complex` só: custa disco e devolve cache por cena e a
+> possibilidade de abrir o segmento que saiu errado.
+
+**Objetivo:** `timeline.json` + `assets/` + áudio → `video.mp4`.
 
 **Este é o marco do projeto.** Até aqui o `studio` me *ajuda* a editar. A partir daqui ele
 *monta* o vídeo, e eu só assisto e aprovo.
@@ -10,7 +19,7 @@
 ```
 $ studio montar 01
 18 cenas, 07:21, 1920x1080 @30fps
-  ⚠ 1 placeholder: web-demo (02:10)
+  ⚠ web-demo   falta o asset — congela o quadro de bench-rodando
 renderizando... 4:12
 
 → build/video.mp4  (412 MB)
@@ -53,7 +62,7 @@ dor — pode ser que nunca chegue.
 ## Critério de pronto
 
 O vídeo 01 sai do `studio montar` **assistível de ponta a ponta**, com áudio sincronizado, e o
-único trabalho manual restante é gravar as cenas `tela` e trocar os placeholders.
+único trabalho restante é produzir os assets que ainda faltam — listados em `build/pedidos.md`.
 
 Não precisa estar bonito. Precisa estar **certo**: cena certa, no tempo certo, com o áudio
 inteiro.

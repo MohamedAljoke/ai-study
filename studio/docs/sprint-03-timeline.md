@@ -14,7 +14,7 @@ $ studio timeline 01
 duração total 07:21
 
   00:00.0  card      abertura
-  00:22.4  terminal  play-demo          (tapes/play.tape)
+  00:22.4  terminal  play-demo          (uma partida curta na mão)
   02:41.9  codigo    parse-position     (internal/game/position.go:12-28)
   06:10.2  manim     density-mapa       (HeatMap, turnos 1-12)
   11:03.7  tela      web-demo           ⚠ sem gravação
@@ -30,7 +30,7 @@ aviso: cena 'abertura' dura 22s — card estático longo demais
   "duracao": 1082.4,
   "cenas": [
     { "id": "play-demo", "tipo": "terminal", "inicio": 180.2, "fim": 300.7,
-      "fonte": "tapes/play.tape", "asset": "build/assets/play-demo.mp4" }
+      "palavra_inicio": 412, "palavra_fim": 517, "params": {} }
   ]
 }
 ```

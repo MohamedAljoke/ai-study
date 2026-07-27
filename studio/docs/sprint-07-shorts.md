@@ -49,7 +49,7 @@ $ studio shorts 01
    - **template vertical próprio:** faixa de título no topo, o asset no meio já renderizado em
      proporção vertical, legenda embaixo.
 
-   Como VHS, freeze e Manim são scriptados, gerar o mesmo asset em tamanho diferente é só
+   Como as animações são scriptadas em Manim, gerar o mesmo asset em tamanho diferente é só
    mudar um parâmetro. **É a vantagem de ter asset determinístico** — e é o motivo de este
    sprint vir depois do 4 e do 6.
 4. **Cartela final** com o nome do canal, ~1s.

@@ -42,6 +42,15 @@ def contar(texto: str) -> int:
     return len(palavras(texto))
 
 
+def trecho(texto: str, inicio: int, fim: int) -> str:
+    """As palavras de `inicio` a `fim` da narração — o que se fala numa cena.
+
+    Índice de palavra é a unidade que atravessa o pipeline inteiro (§1): é ela que o
+    alinhamento converte em tempo, e é a mesma que recorta a fala aqui.
+    """
+    return " ".join(palavras(texto)[max(inicio, 0) : max(fim, 0)])
+
+
 def estimar_duracao(n_palavras: int, wpm: int = PALAVRAS_POR_MINUTO) -> float:
     return n_palavras / wpm * 60
 

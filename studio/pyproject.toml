@@ -8,9 +8,9 @@ dependencies = []
 [project.optional-dependencies]
 # torch e torchaudio vêm junto do whisperx; declarar aqui é o que faz o
 # [tool.uv.sources] abaixo pegar — sources só vale pra dependência direta.
-alinhamento = ["whisperx>=3.4", "torch>=2.8", "torchaudio>=2.8"]
-assets = []
-manim = []
+alinhamento = ["whisperx>=3.4", "torch>=2.8", "torchaudio>=2.8", "torchvision>=0.23"]
+# O studio não gera mídia: os assets são feitos fora e largados em videos/NN/assets/.
+# A única ferramenta externa que sobrou é o ffmpeg, que vem do sistema.
 duble = ["piper-tts>=1.3"]
 
 [dependency-groups]
@@ -27,9 +27,14 @@ build-backend = "hatchling.build"
 packages = ["studio"]
 
 # Sem GPU aqui. O wheel padrão do torch traz CUDA e pesa uns 2 GB à toa.
+# torchvision entra pela pyannote, via whisperx. Não é usado pra nada aqui, mas o
+# whisperx importa transformers, que importa torchvision: se o wheel dele for o de
+# CUDA e o do torch for o de CPU, o import morre em "torchvision::nms does not exist".
+# Os três têm que vir do mesmo índice.
 [tool.uv.sources]
 torch = [{ index = "torch-cpu" }]
 torchaudio = [{ index = "torch-cpu" }]
+torchvision = [{ index = "torch-cpu" }]
 
 [[tool.uv.index]]
 name = "torch-cpu"

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import json
 
-from studio import alinhador, audio, cache, legendas
+from studio import alinhador, artefatos, audio, cache, legendas
 from studio import texto as t
 from studio.alinhador import IDIOMA, Palavra
 from studio.projeto import ErroDeUso, resolver
 
-FERRAMENTA = "alinhar/" + cache.versao_de(alinhador, legendas, t)
+FERRAMENTA = "alinhar/" + cache.versao_do_comando(__name__, alinhador, artefatos, legendas, t)
 
 CONFIANCA_BAIXA = 0.5
 PIORES = 8
@@ -62,11 +62,6 @@ def _json(projeto, palavras: list[Palavra], som, eh_duble: bool) -> str:
         ],
     }
     return json.dumps(dados, indent=2, ensure_ascii=False) + "\n"
-
-
-def _ler(projeto) -> list[Palavra]:
-    dados = json.loads(projeto.palavras.read_text(encoding="utf-8"))
-    return [Palavra(**p) for p in dados["lista"]]
 
 
 def _relatorio(palavras: list[Palavra]) -> None:
@@ -140,7 +135,7 @@ def alinhar(numero: str, idioma: str = IDIOMA) -> int:
             saida.write_text(conteudo, encoding="utf-8")
             cache.registrar(saida, entradas, params, FERRAMENTA)
     else:
-        palavras = _ler(projeto)
+        palavras = artefatos.ler_palavras(projeto.palavras)
 
     _relatorio(palavras)
 
