@@ -252,6 +252,58 @@ function seguirLog(id) {
   });
 }
 
+// --- a lista de vídeos, e criar um do zero ---
+
+let numeros = [];   // os números já usados — o `+ novo` sugere o próximo livre
+
+async function listarVideos(preferido) {
+  const videos = await pedir("/api/videos");
+  numeros = videos.map((v) => v.numero);
+  $("videos").replaceChildren(...videos.map((v) => {
+    const opcao = criar("option", null, v.nome);
+    opcao.value = v.numero;
+    return opcao;
+  }));
+  // sem nenhum vídeo, a página fica só com o "+ novo" — é o começo do zero
+  document.body.classList.toggle("vazio", !videos.length);
+  if (!videos.length) return;
+
+  video = videos.some((v) => v.numero === preferido) ? preferido : videos[0].numero;
+  $("videos").value = video;
+  location.hash = video;
+  await recarregar();
+}
+
+function ligarNovo() {
+  const dialogo = $("dialogo-novo");
+  $("abrir-novo").onclick = () => {
+    $("erro-novo").hidden = true;
+    // repetir número é o erro fácil de cometer, e ele só aparece depois, no `resolver`
+    const proximo = Math.max(0, ...numeros.map(Number)) + 1;
+    $("nome-novo").value = `${String(proximo).padStart(2, "0")}-`;
+    dialogo.showModal();
+    $("nome-novo").focus();
+    $("nome-novo").setSelectionRange(3, 3);   // o cursor cai depois do hífen
+  };
+
+  $("confirmar-novo").onclick = async (evento) => {
+    evento.preventDefault();  // só fecha se o servidor aceitar o nome
+    try {
+      const criado = await pedir("/api/videos", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ nome: $("nome-novo").value }),
+      });
+      dialogo.close();
+      await listarVideos(criado.numero);
+      abrirAba("roteiro");  // vídeo novo começa no roteiro, que é o próximo passo dele
+    } catch (erro) {
+      $("erro-novo").hidden = false;
+      $("erro-novo").textContent = erro.message;
+    }
+  };
+}
+
 // --- ligar tudo ---
 
 function desenhar() {
@@ -261,14 +313,18 @@ function desenhar() {
   desenharCenas();
 }
 
+function abrirAba(nome) {
+  document.querySelectorAll(".abas button").forEach((b) => {
+    b.classList.toggle("ativa", b.dataset.aba === nome);
+  });
+  document.querySelectorAll(".aba").forEach((s) => {
+    s.classList.toggle("ativa", s.id === `aba-${nome}`);
+  });
+}
+
 function ligarAbas() {
   document.querySelectorAll(".abas button").forEach((botao) => {
-    botao.onclick = () => {
-      document.querySelectorAll(".abas button").forEach((b) => b.classList.remove("ativa"));
-      document.querySelectorAll(".aba").forEach((s) => s.classList.remove("ativa"));
-      botao.classList.add("ativa");
-      $(`aba-${botao.dataset.aba}`).classList.add("ativa");
-    };
+    botao.onclick = () => abrirAba(botao.dataset.aba);
   });
 }
 
@@ -284,25 +340,15 @@ async function comecar() {
     await enviarArquivo(`/api/videos/${video}/audio`, arquivo);
     await recarregar();
   });
-
-  const videos = await pedir("/api/videos");
-  $("videos").replaceChildren(...videos.map((v) => {
-    const opcao = criar("option", null, v.nome);
-    opcao.value = v.numero;
-    return opcao;
-  }));
   $("videos").onchange = () => {
     video = $("videos").value;
     location.hash = video;
     recarregar();
   };
 
-  if (!videos.length) return;
+  ligarNovo();
   // `studio ui 01` abre já no vídeo 01
-  const pedido = location.hash.replace("#", "");
-  video = videos.some((v) => v.numero === pedido) ? pedido : videos[0].numero;
-  $("videos").value = video;
-  await recarregar();
+  await listarVideos(location.hash.replace("#", ""));
 }
 
 comecar().catch(mostrarErro);

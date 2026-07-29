@@ -1,6 +1,6 @@
 import pytest
 
-from studio.comandos.novo import novo
+from studio.comandos.novo import criar, novo
 from studio.projeto import ErroDeUso, Projeto
 
 
@@ -39,3 +39,19 @@ def test_criar_por_cima_de_video_que_existe_e_recusado(casa):
 def test_nome_fora_do_padrao_nn_slug_e_recusado(casa):
     with pytest.raises(ErroDeUso):
         novo("parity")
+
+
+def test_repetir_o_numero_com_outro_slug_e_recusado(casa):
+    """`01-teste` ao lado de `01-batalha-naval` derruba todo comando dos dois no `resolver`."""
+    novo("07-parity")
+    with pytest.raises(ErroDeUso, match="já é do 07-parity"):
+        novo("07-outra-coisa")
+
+
+def test_criar_devolve_o_projeto_sem_imprimir(casa, capsys):
+    """A UI cria por aqui: quem imprime é o comando, não a criação (§8)."""
+    projeto = criar("07-parity")
+
+    assert projeto.numero == "07"
+    assert projeto.script.is_file()
+    assert capsys.readouterr().out == ""

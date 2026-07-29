@@ -44,6 +44,51 @@ select {
 .proximo { margin-left: auto; font-size: 0.85rem; opacity: 0.8; }
 .proximo b { color: var(--acento); font-weight: 600; }
 
+.novo {
+  background: none;
+  color: inherit;
+  border: 1px solid color-mix(in srgb, var(--texto) 18%, transparent);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.novo:hover { opacity: 1; border-color: color-mix(in srgb, var(--texto) 45%, transparent); }
+
+/* Sem nenhum vídeo em `videos/`, o único caminho é criar um. */
+body.vazio .etapas,
+body.vazio .abas,
+body.vazio main,
+body.vazio select { display: none; }
+body.vazio .novo { opacity: 1; border-color: var(--acento); color: var(--acento); }
+
+dialog {
+  background: var(--fundo-alt);
+  color: var(--texto);
+  border: 1px solid color-mix(in srgb, var(--texto) 18%, transparent);
+  border-radius: 10px;
+  padding: 1.4rem;
+  max-width: 28rem;
+}
+dialog::backdrop { background: color-mix(in srgb, var(--fundo) 78%, transparent); }
+dialog h2 { margin: 0 0 1rem; font-size: 1rem; font-weight: 600; }
+dialog label { display: block; font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.3rem; }
+dialog input {
+  width: 100%;
+  background: var(--fundo);
+  color: inherit;
+  border: 1px solid color-mix(in srgb, var(--texto) 18%, transparent);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  font: inherit;
+  font-family: ui-monospace, Menlo, monospace;
+}
+dialog input:focus { outline: none; border-color: var(--acento); }
+dialog .nota { margin: 0.6rem 0 0; line-height: 1.5; }
+dialog .acoes { margin: 1.2rem 0 0; justify-content: flex-end; }
+
 .etapas {
   display: flex;
   gap: 0.4rem;

@@ -35,6 +35,7 @@ TIMELINE = {
 def projeto(tmp_path, monkeypatch) -> Projeto:
     (tmp_path / "templates").mkdir()
     (tmp_path / "templates" / "script.md").write_text("# {{TITULO}}\n", encoding="utf-8")
+    (tmp_path / "templates" / "thumb.vars.json").write_text("{}\n", encoding="utf-8")
     p = Projeto(tmp_path / "videos" / "01-teste")
     p.garantir_build()
     p.script.write_text(ROTEIRO, encoding="utf-8")
@@ -55,6 +56,46 @@ def cliente(projeto) -> TestClient:
 def test_a_pagina_e_as_cores_saem_do_servidor(cliente):
     assert "<title>studio" in cliente.get("/").text
     assert "--acento:" in cliente.get("/pagina.css").text
+
+
+# --- começar um vídeo do zero ---
+
+
+def test_criar_video_pela_pagina_faz_a_pasta_com_o_template(cliente, projeto):
+    resposta = cliente.post("/api/videos", json={"nome": "02-arvores-de-busca"})
+
+    assert resposta.status_code == 200
+    assert resposta.json()["numero"] == "02"
+    novo = projeto.raiz.parent / "02-arvores-de-busca"
+    assert novo.joinpath("assets").is_dir()
+    assert "# Arvores de busca" in novo.joinpath("script.md").read_text(encoding="utf-8")
+
+
+def test_o_video_criado_aparece_na_listagem(cliente):
+    cliente.post("/api/videos", json={"nome": "02-arvores-de-busca"})
+    assert [v["numero"] for v in cliente.get("/api/videos").json()] == ["01", "02"]
+
+
+def test_nome_fora_do_padrao_volta_como_erro_de_uso(cliente):
+    resposta = cliente.post("/api/videos", json={"nome": "Árvores de Busca"})
+
+    assert resposta.status_code == 400
+    assert "NN-slug" in resposta.json()["erro"]
+
+
+def test_repetir_o_numero_de_outro_video_e_recusado(cliente):
+    resposta = cliente.post("/api/videos", json={"nome": "01-outra-coisa"})
+
+    assert resposta.status_code == 400
+    assert "já é do 01-teste" in resposta.json()["erro"]
+
+
+def test_criar_por_cima_de_video_que_existe_e_recusado(cliente):
+    """A página não pode ser um jeito mais fácil de apagar roteiro por cima."""
+    resposta = cliente.post("/api/videos", json={"nome": "01-teste"})
+
+    assert resposta.status_code == 400
+    assert "já existe" in resposta.json()["erro"]
 
 
 # --- estado ---

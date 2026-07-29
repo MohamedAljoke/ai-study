@@ -17,6 +17,7 @@ from typing import Annotated
 from fastapi import Body, FastAPI, File, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 
+from studio.comandos import novo
 from studio.projeto import ErroDeUso, Projeto, resolver
 from studio.ui import estado, tarefas
 
@@ -119,6 +120,11 @@ def criar_app() -> FastAPI:
     @app.get("/api/videos")
     def videos() -> list[dict]:
         return estado.videos()
+
+    @app.post("/api/videos")
+    def criar_video(corpo: Annotated[dict, Body()]) -> dict:
+        """O nome vale ou não vale segundo o `validar_nome` — a página não tem opinião."""
+        return estado.resumo(novo.criar(str(corpo.get("nome", "")).strip()))
 
     @app.get("/api/videos/{numero}")
     def video(numero: str) -> dict:

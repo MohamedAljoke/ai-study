@@ -2,19 +2,35 @@
 
 from __future__ import annotations
 
-from studio.projeto import ErroDeUso, Projeto, pasta_templates, pasta_videos, validar_nome
+from studio.projeto import (
+    ErroDeUso,
+    Projeto,
+    listar,
+    pasta_templates,
+    pasta_videos,
+    validar_nome,
+)
 
 
 def _titulo(slug: str) -> str:
     return slug.replace("-", " ").capitalize()
 
 
-def novo(nome: str) -> int:
+def criar(nome: str) -> Projeto:
+    """Cria a pasta e devolve o projeto. Sem imprimir — a UI cria por aqui também."""
     numero, slug = validar_nome(nome)
 
     raiz = pasta_videos() / nome
     if raiz.exists():
         raise ErroDeUso(f"{raiz.relative_to(pasta_videos().parent)} já existe")
+
+    # O número é a chave de todo comando. Dois vídeos com o mesmo `01` não quebram na
+    # criação: quebram depois, no `resolver`, e derrubam junto o vídeo que já existia.
+    if repetido := next((p for p in listar() if p.numero == numero), None):
+        raise ErroDeUso(
+            f"o número {numero} já é do {repetido.nome} — "
+            f"dois vídeos com o mesmo número quebram todo comando dos dois"
+        )
 
     templates = pasta_templates()
     modelo = (templates / "script.md").read_text(encoding="utf-8")
@@ -28,6 +44,12 @@ def novo(nome: str) -> int:
         encoding="utf-8",
     )
     projeto.thumb_vars.write_text(thumb, encoding="utf-8")
+    return projeto
+
+
+def novo(nome: str) -> int:
+    projeto = criar(nome)
+    raiz, numero = projeto.raiz, projeto.numero
 
     print(f"criado videos/{nome}/")
     for caminho in (projeto.script, projeto.assets, projeto.thumb_vars, projeto.build):

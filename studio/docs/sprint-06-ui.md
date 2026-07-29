@@ -15,7 +15,10 @@ vídeo 01 é ler o `pedidos.md`, copiar um arquivo pra `assets/<id>.<ext>`, roda
 
 ## O que a página faz
 
-Três seções, na ordem em que eu trabalho:
+Três seções, na ordem em que eu trabalho — e um **`+ novo`** no cabeçalho, porque senão a
+página só sabe continuar vídeo que já existe, e conteúdo novo obrigava a voltar pro terminal.
+Ele pede o `NN-slug`, cria `videos/NN-slug/` com o `script.md` do template e já abre no
+roteiro, que é o próximo passo dele. Com `videos/` vazio, é a única coisa na tela.
 
 1. **roteiro** — editor do `script.md` com a prévia ao lado: o texto que eu vou ler, a
    contagem de palavras, a duração estimada, as cenas e os shorts detectados. Salvar
@@ -47,6 +50,7 @@ tem dono:
 
 | Pergunta | Quem responde |
 |---|---|
+| esse nome de vídeo vale? | `comandos/novo.criar` → `projeto.validar_nome` |
 | em que passo o vídeo está | `comandos/status.etapas` |
 | qual é o próximo passo | `comandos/status.proximo` |
 | quem fornece cada cena | `comandos/pedidos.levantar` |
@@ -75,7 +79,10 @@ shell.
 
 ## O que a página escreve no disco
 
-Três coisas, e as três com guarda:
+Quatro coisas, e as quatro com guarda:
+
+- **`videos/NN-slug/`** — o nome passa pelo `validar_nome`, e criar por cima de vídeo que
+  existe é recusado. A página não pode virar o jeito mais fácil de apagar roteiro por cima.
 
 - **`script.md`** — a página manda de volta a assinatura do arquivo que carregou. Se ele
   mudou no disco no meio (eu abri no editor), o servidor recusa em vez de sobrescrever. É o

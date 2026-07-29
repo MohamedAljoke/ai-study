@@ -12,10 +12,28 @@
   <div class="topo">
     <h1>studio</h1>
     <select id="videos" aria-label="vídeo"></select>
+    <button id="abrir-novo" class="novo" title="criar vídeo">+ novo</button>
     <span id="proximo" class="proximo"></span>
   </div>
   <ol id="etapas" class="etapas"></ol>
 </header>
+
+<dialog id="dialogo-novo">
+  <form method="dialog">
+    <h2>novo vídeo</h2>
+    <label for="nome-novo">nome da pasta</label>
+    <input id="nome-novo" name="nome" placeholder="02-arvores-de-busca" autocomplete="off">
+    <p class="nota">
+      <code>NN-slug-em-kebab-case</code> — vira <code>videos/NN-slug/</code> com o
+      <code>script.md</code> do template pra você escrever por cima.
+    </p>
+    <pre id="erro-novo" class="erro" hidden></pre>
+    <div class="acoes">
+      <button value="cancelar">cancelar</button>
+      <button id="confirmar-novo" value="criar" class="primario">criar</button>
+    </div>
+  </form>
+</dialog>
 
 <nav class="abas">
   <button data-aba="roteiro" class="ativa">1 · roteiro</button>
