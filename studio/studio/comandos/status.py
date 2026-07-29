@@ -84,7 +84,8 @@ def _derivado(
     return Etapa(rotulo, OK)
 
 
-def _etapas(projeto: Projeto) -> list[Etapa]:
+def etapas(projeto: Projeto) -> list[Etapa]:
+    """Os sete passos e o estado de cada um. A UI lê daqui — regra de estado é uma só."""
     n = projeto.numero
     roteiro = _roteiro(projeto)
 
@@ -160,27 +161,32 @@ def _assets(projeto: Projeto) -> Etapa:
     return Etapa("assets", PARCIAL, detalhe, f"studio pedidos {n}")
 
 
+def proximo(lista: list[Etapa]) -> Etapa | None:
+    """A primeira etapa que trava o resto. `None` quando o vídeo está montado."""
+    return next((e for e in lista if e.estado not in SEGUEM), None)
+
+
 def _imprimir(projeto: Projeto) -> None:
-    etapas = _etapas(projeto)
-    largura = max(len(e.rotulo) for e in etapas) + 2
+    lista = etapas(projeto)
+    largura = max(len(e.rotulo) for e in lista) + 2
 
     print(f"{'vídeo:':<{largura}}{projeto.nome}")
-    for etapa in etapas:
+    for etapa in lista:
         linha = f"{etapa.rotulo + ':':<{largura}}{etapa.estado}"
         if etapa.detalhe:
             linha += f" — {etapa.detalhe}"
         print(linha)
 
-    pendente = next((e for e in etapas if e.estado not in SEGUEM), None)
+    pendente = proximo(lista)
     print()
     if pendente is None:
         print("próximo:  nada — o vídeo está montado")
     else:
         print(f"próximo:  {pendente.dica or pendente.rotulo}")
 
-    if any(e.estado == DUBLE for e in etapas):
+    if any(e.estado == DUBLE for e in lista):
         print("⚠ rodando com dublê — o vídeo final ainda depende de eu gravar")
-    if parcial := next((e for e in etapas if e.estado == PARCIAL), None):
+    if parcial := next((e for e in lista if e.estado == PARCIAL), None):
         print(f"⚠ assets: {parcial.detalhe} — {parcial.dica}")
 
 

@@ -106,10 +106,18 @@ alinhamento. Cada módulo tem **um** assunto, e o nome do arquivo diz qual:
 | `cache.py` | hash de entrada → refazer ou não | saber o que gera o quê |
 | `projeto.py` | caminhos e nomes | conteúdo de arquivo |
 | `comandos/*.py` | orquestrar e falar com o terminal | regra de negócio |
+| `ui/estado.py` | `Projeto` → dado serializável | HTTP, e decidir qualquer coisa |
+| `ui/tarefas.py` | rodar etapa em subprocesso e streamar | saber o que cada etapa faz |
+| `ui/servidor.py` | as rotas HTTP | regra de pipeline |
 
 **Regra de dependência: os módulos não conhecem os comandos, e não imprimem nada.** `print`
 só existe em `comandos/`. Isso é o que deixa a lógica testável sem disco e sem capturar
 stdout.
+
+`ui/` é a exceção que confirma a regra: é **casca**, na mesma categoria de `comandos/`, e por
+isso pode chamar comando. O que ela não pode é decidir. Em que passo o vídeo está é
+`status.etapas`; quem fornece cada cena é `pedidos.levantar`. Página que responde isso
+sozinha vai discordar do terminal, em silêncio — e aí eu passo a debugar o lugar errado.
 
 Etapa nova é **arquivo novo**, não um `if` num arquivo existente.
 
@@ -163,7 +171,9 @@ então ele não é opcional:
   Não testar getter.
 - `make test` e `make check` limpos antes de qualquer commit.
 
-Sem teste, `cenas.py` e `cli.py` — os dois que ainda não têm.
+Sem teste, `cenas.py` e `cli.py` — os dois que ainda não têm. A página em si (`pagina.js`)
+também não tem, e é decisão: o JavaScript não decide nada, e o que valia a pena garantir —
+que o estado desenhado é o mesmo que o terminal imprime — está em `test_ui_estado.py`.
 
 O que não pode ficar sem teste é a escolha de quem fornece cada cena (`pedidos.py`) e o
 cálculo de tempo da montagem, que é onde um erro passa despercebido até eu assistir os sete
@@ -211,6 +221,9 @@ caminho e de disco.
 | vídeo dessincronizado do áudio no fim | `make montar V=01` | `ffprobe build/video.mp4` | `montagem.py` | `test_montagem.py` |
 | enquadramento, codec, cor de fundo da borda | `make montar V=01` | um segmento solto | `ffmpeg.py` | `test_ffmpeg.py` |
 | refez o que não devia (ou não refez) | qualquer um, duas vezes | os `.hash` no `build/` | `cache.py` | `test_cache.py` |
+| a página mostra estado diferente do terminal | `make ui` e `make status V=01` | `/api/videos/01` | `ui/estado.py` | `test_ui_estado.py` |
+| arquivo largado na página não chegou no lugar | `make ui` | `videos/NN/assets/` | `ui/servidor.py` | `test_ui_servidor.py` |
+| o log da página não escorre, ou trava | `make ui` | o mesmo comando no terminal | `ui/tarefas.py` | `test_ui_tarefas.py` |
 
 Etapa nova entra nesta tabela **no mesmo commit** em que nasce.
 

@@ -21,7 +21,7 @@ def novo(nome: str) -> int:
     thumb = (templates / "thumb.vars.json").read_text(encoding="utf-8")
 
     projeto = Projeto(raiz)
-    projeto.tapes.mkdir(parents=True)
+    projeto.assets.mkdir(parents=True)
     projeto.garantir_build()
     projeto.script.write_text(
         modelo.replace("{{TITULO}}", _titulo(slug)).replace("{{NUMERO}}", numero),
@@ -30,7 +30,7 @@ def novo(nome: str) -> int:
     projeto.thumb_vars.write_text(thumb, encoding="utf-8")
 
     print(f"criado videos/{nome}/")
-    for caminho in (projeto.script, projeto.tapes, projeto.thumb_vars, projeto.build):
+    for caminho in (projeto.script, projeto.assets, projeto.thumb_vars, projeto.build):
         marca = "  (descartável)" if caminho == projeto.build else ""
         print(f"  {caminho.relative_to(raiz)}{marca}")
     print(f"\npróximo:  escrever o roteiro, depois  studio narracao {numero}")

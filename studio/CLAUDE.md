@@ -25,6 +25,10 @@ nunca um `if` a mais num arquivo existente.
 **Módulo não imprime e não conhece comando.** `print` só em `comandos/`. A lógica tem que
 rodar em teste sem disco e sem capturar stdout.
 
+**`ui/` é casca, não cérebro.** A interface local (`studio ui`) pode chamar comando, mas não
+decide nada: estado do vídeo é `status.etapas`, quem fornece cada cena é `pedidos.levantar`.
+Página que responde isso sozinha diverge do terminal em silêncio.
+
 **Dependência pesada atrás de interface pequena** (§9), com import tardio dentro da função e
 `ErroDeUso` com o comando de instalação quando faltar. `alinhador.py` é o modelo: é o único
 arquivo que sabe que o WhisperX existe; `ffmpeg.py` é o único que monta linha de comando do

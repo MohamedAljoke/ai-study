@@ -19,6 +19,7 @@ o que doeu.** Cada sprint sai de uma dor real do vídeo anterior, não de um pla
 | 3 | [Timeline](sprint-03-timeline.md) | `studio timeline 01` → cena X entra em 04:12.3 | 2 | ✅ |
 | 4 | [Folha de pedidos](sprint-04-pedidos.md) | `studio pedidos 01` → o que produzir, com duração | 3 | ✅ |
 | 5 | [Montagem](sprint-05-montagem.md) | `studio montar 01` → **video.mp4** | 4 | ✅ |
+| 6 | [Interface](sprint-06-ui.md) | `studio ui` → roteiro, áudio e assets numa página | 5 | ✅ |
 | 7 | [Shorts](sprint-07-shorts.md) | `studio shorts 01` → verticais com legenda queimada | 5 | ← |
 | 8 | [Thumb e metadados](sprint-08-thumb-meta.md) | `studio thumb/meta 01` → thumb.png, título, capítulos | 0 | |
 
@@ -45,17 +46,22 @@ A parte visual é minha, feita fora, principalmente em **Manim**. Isso não torn
 mais frouxo: a duração de cada cena continua vindo do áudio, e mirar nela é o que faz o
 arquivo que eu produzo entrar sem retrabalho.
 
-O sprint 6 (Manim) **saiu do plano do studio** por isso — não é código daqui. O que valia
-dele continua valendo como método de trabalho, e está anotado embaixo.
+O sprint 6 era o do Manim, e **saiu do plano do studio** por isso — não é código daqui. O que
+valia dele continua valendo como método de trabalho, e está anotado embaixo. O número foi
+reaproveitado pela [interface](sprint-06-ui.md), que nasceu da dor seguinte: com o pipeline
+pronto, o que sobrou foi repetir dezoito vezes o mesmo copiar-arquivo-e-conferir.
 
 ## Dependências reais
 
 ```
 0 ──> 1 ──> 2 ──> 3 ──> 4 ──> 5 ──> 7
+                              └──> 6
 0 ──────────────────────────> 8
 ```
 
-O sprint 8 é independente do caminho principal e é o mais barato de todos.
+O sprint 8 é independente do caminho principal e é o mais barato de todos. O 6 também sai do
+5 e não bloqueia ninguém: a interface é casca sobre o pipeline pronto, e tudo continua
+funcionando pelo terminal sem ela.
 
 ## Como eu faço as animações (fora do studio)
 

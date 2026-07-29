@@ -3,7 +3,7 @@ STUDIO := uv run studio
 
 .DEFAULT_GOAL := ajuda
 
-.PHONY: ajuda setup test check fmt limpar novo status narracao duble alinhar timeline pedidos montar rascunho shorts thumb meta tudo
+.PHONY: ajuda setup test check fmt limpar novo status ui narracao duble alinhar timeline pedidos montar rascunho shorts thumb meta tudo
 
 ajuda:
 	@echo "manutenção"
@@ -16,6 +16,7 @@ ajuda:
 	@echo "pipeline               (V=NN, ex: make status V=01)"
 	@echo "  make novo NOME=01-batalha-naval"
 	@echo "  make status V=01"
+	@echo "  make ui                → a página: roteiro, áudio e assets num lugar só"
 	@echo "  make narracao V=01     → narration.txt, o texto que eu leio"
 	@echo "  make duble V=01        → voz sintética, pra testar sem gravar"
 	@echo "  make alinhar V=01      → words.json + legendas"
@@ -31,7 +32,7 @@ ajuda:
 	@$(STUDIO) --version
 
 setup:
-	uv sync --extra alinhamento --extra duble
+	uv sync --extra alinhamento --extra duble --extra ui
 
 test:
 	uv run pytest -q
@@ -61,6 +62,9 @@ novo:
 
 status:
 	$(STUDIO) status $(V)
+
+ui:
+	$(STUDIO) ui $(V)
 
 narracao duble alinhar timeline pedidos montar shorts thumb meta tudo: exige-v
 	$(STUDIO) $@ $(V)

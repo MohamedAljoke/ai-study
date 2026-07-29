@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>studio</title>
+  <link rel="stylesheet" href="/pagina.css">
+</head>
+<body>
+
+<header>
+  <div class="topo">
+    <h1>studio</h1>
+    <select id="videos" aria-label="vídeo"></select>
+    <span id="proximo" class="proximo"></span>
+  </div>
+  <ol id="etapas" class="etapas"></ol>
+</header>
+
+<nav class="abas">
+  <button data-aba="roteiro" class="ativa">1 · roteiro</button>
+  <button data-aba="audio">2 · áudio</button>
+  <button data-aba="cenas">3 · cenas</button>
+</nav>
+
+<main>
+  <section id="aba-roteiro" class="aba ativa">
+    <div class="acoes">
+      <button id="salvar" class="primario">salvar script.md</button>
+      <button data-comando="narracao">rodar narração</button>
+      <span id="salvo" class="nota"></span>
+    </div>
+    <pre id="erro-roteiro" class="erro" hidden></pre>
+    <div class="lado-a-lado">
+      <textarea id="script" spellcheck="false" placeholder="# Título do vídeo"></textarea>
+      <div class="previa">
+        <div id="previa-numeros" class="numeros"></div>
+        <h3>o que eu vou ler</h3>
+        <div id="previa-narracao" class="narracao"></div>
+        <h3>cenas marcadas</h3>
+        <ul id="previa-cenas" class="lista"></ul>
+        <h3>shorts</h3>
+        <ul id="previa-shorts" class="lista"></ul>
+        <ul id="previa-avisos" class="lista avisos"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="aba-audio" class="aba">
+    <div id="alvo-audio" class="soltar grande">
+      <strong>largue aqui o narration.wav</strong>
+      <span class="nota">a página não grava nada — o áudio é meu, lido do build/narration.md</span>
+    </div>
+    <div id="estado-audio" class="nota"></div>
+    <audio id="tocador-audio" controls hidden></audio>
+    <div class="acoes">
+      <button data-comando="duble">dublê (voz sintética)</button>
+      <button data-comando="alinhar" class="primario">alinhar</button>
+      <button data-comando="timeline">timeline</button>
+    </div>
+  </section>
+
+  <section id="aba-cenas" class="aba">
+    <div class="acoes">
+      <span id="placar" class="placar"></span>
+      <button data-comando="pedidos">pedidos.md</button>
+      <button data-comando="montar" data-flags="--rascunho">rascunho</button>
+      <button data-comando="montar" class="primario">montar</button>
+    </div>
+    <video id="tocador-video" controls hidden></video>
+    <div id="cenas" class="cenas"></div>
+  </section>
+</main>
+
+<footer id="gaveta" class="gaveta">
+  <button id="alternar-log" class="cabeca">
+    <span id="titulo-log">log</span>
+    <span id="giro" class="giro" hidden></span>
+  </button>
+  <pre id="log"></pre>
+</footer>
+
+<script src="/pagina.js"></script>
+</body>
+</html>

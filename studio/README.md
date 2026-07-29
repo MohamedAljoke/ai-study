@@ -17,13 +17,16 @@ me diz o que produzir e com que duração, e junta tudo com a narração.
 
 ## Estado
 
-**Sprints 0 a 5 prontos — o pipeline vai do `script.md` ao `video.mp4`.** O vídeo 01 tem 18
-cenas, 07:02, e monta inteiro com qualquer subconjunto dos assets pronto: cena que ainda não
-existe congela o último quadro da anterior, e o que falta aparece em `build/pedidos.md`, não
-no silêncio ([convenção §3](docs/convencoes.md)). Plano em [`docs/`](docs/README.md).
+**Sprints 0 a 6 prontos — o pipeline vai do `script.md` ao `video.mp4`, com interface.** O
+vídeo 01 tem 18 cenas, 07:02, e monta inteiro com qualquer subconjunto dos assets pronto:
+cena que ainda não existe congela o último quadro da anterior, e o que falta aparece em
+`build/pedidos.md`, não no silêncio ([convenção §3](docs/convencoes.md)). Plano em
+[`docs/`](docs/README.md).
 
 ```
 make setup             # ambiente Python (o ffmpeg vem do sistema)
+
+make ui                # ← a página: roteiro, áudio e assets num lugar só
 
 make status V=01
 make narracao V=01     # → narration.txt, o texto que eu leio
@@ -38,6 +41,11 @@ make rascunho V=01     # o mesmo em 540p, pra revisar em ciclo curto
 make tudo V=01         # tudo isso em ordem
 ```
 
+O `make ui` faz o mesmo que os alvos abaixo, numa página escura: editar e validar o roteiro,
+largar o `narration.wav`, e largar o arquivo de cada cena num card que já mostra a duração
+exata e o trecho que eu falo nela. O terminal continua valendo pra tudo — a página é casca
+([sprint 6](docs/sprint-06-ui.md)).
+
 Próximo: as animações do vídeo 01 em Manim — trabalho fora do studio — e o sprint 7 (shorts).
 
 ## Os comandos (alvo)
@@ -51,6 +59,7 @@ studio alinhar 01        # + wav → words.json + legendas
 studio timeline 01       # marcadores + words.json → timeline.json + shorts.json
 studio pedidos 01        # → pedidos.md: o que produzir, com duração e fala
                          # [eu produzo e largo em assets/<id>.<ext>]
+studio ui                # a mesma coisa numa página, com drag & drop
 studio montar 01         # → video.mp4 + .srt
 studio shorts 01         # → shorts/*.mp4 verticais com legenda queimada
 studio thumb 01          # → thumb.png (+ variantes)
@@ -61,12 +70,13 @@ studio tudo 01           # ← o alvo real
 
 ## Stack
 
-Python. WhisperX (alinhamento), ffmpeg (montagem), piper (a voz de teste), Playwright (thumb,
-sprint 8). Manim é ferramenta minha, fora do pipeline. O Go entra só do lado do jogo,
-exportando dados que as animações consomem.
+Python. WhisperX (alinhamento), ffmpeg (montagem), piper (a voz de teste), FastAPI (a
+interface local), Playwright (thumb, sprint 8). Manim é ferramenta minha, fora do pipeline. O
+Go entra só do lado do jogo, exportando dados que as animações consomem.
 
-As dependências pesadas são extras opcionais (`alinhamento`, `duble`) — o `studio` em si não
-depende de nada, e cada sprint só puxa o que precisa.
+As dependências pesadas são extras opcionais (`alinhamento`, `duble`, `ui`) — o `studio` em si
+não depende de nada, e cada sprint só puxa o que precisa. A página é HTML, CSS e JavaScript
+escritos à mão: sem framework, sem build, sem `node_modules`.
 
 ## Estrutura
 

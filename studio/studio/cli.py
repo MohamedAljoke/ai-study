@@ -18,6 +18,7 @@ from studio.comandos.pedidos import pedidos_cmd
 from studio.comandos.status import status
 from studio.comandos.timeline import timeline_cmd
 from studio.comandos.tudo import tudo
+from studio.comandos.ui import PORTA, ui
 from studio.projeto import ErroDeUso
 from studio.texto import PALAVRAS_POR_MINUTO
 
@@ -96,6 +97,18 @@ PIPELINE: list[Comando] = [
         "numero",
         montar,
         flags=(Flag("--rascunho", bool, False, "720p e preset veloz, pra revisar rápido"),),
+    ),
+    Comando(
+        "ui",
+        "abre a interface local: roteiro, áudio e assets numa página só",
+        6,
+        "numero",
+        ui,
+        opcional=True,
+        flags=(
+            Flag("--porta", int, PORTA, "porta do servidor local"),
+            Flag("--sem-navegador", bool, False, "não abre o navegador sozinho"),
+        ),
     ),
     Comando("shorts", "os trechos marcados → verticais com legenda queimada", 7),
     Comando("thumb", "thumb.vars.json → thumb.png", 8),
