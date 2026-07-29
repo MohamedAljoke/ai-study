@@ -1,0 +1,463 @@
+/* Battleships — a dark sonar console.
+   One palette block up top; everything below refers to it. */
+
+:root {
+  --bg:        #070b11;
+  --panel:     #0e1620;
+  --panel-2:   #131f2c;
+  --grid-line: #1c2b3d;
+  --water:     #0f1b28;
+  --water-hi:  #16283a;
+
+  --ink:       #e6edf5;
+  --ink-dim:   #8298b0;
+  --ink-faint: #55697f;
+
+  --accent:    #38bdf8;
+  --ship:      #3f5a75;
+  --ship-edge: #55708a;
+  --hit:       #f97316;
+  --sunk:      #b91c1c;
+  --miss:      #3a4a5e;
+  --heat:      #f43f5e;
+  --ok:        #34d399;
+  --bad:       #ef4444;
+
+  --radius:    10px;
+  --gap:       3px;
+  --shadow:    0 18px 44px -22px rgb(0 0 0 / 0.9);
+
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1100px 620px at 78% -12%, #10202f 0%, transparent 62%),
+    radial-gradient(820px 520px at 4% 104%, #0d1a26 0%, transparent 58%),
+    var(--bg);
+  color: var(--ink);
+  font: 15px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── chrome ──────────────────────────────────────────────────────────── */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px clamp(16px, 3vw, 34px);
+  border-bottom: 1px solid var(--grid-line);
+  background: linear-gradient(180deg, rgb(14 22 32 / 0.92), rgb(7 11 17 / 0.55));
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.brand {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.brand span { color: var(--accent); }
+
+.tabs { display: flex; gap: 4px; }
+
+.tab {
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink-dim);
+  font: inherit;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .15s, background .15s, border-color .15s;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 34%, transparent);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+.status {
+  margin: 0 0 0 auto;
+  font: 13px/1.4 var(--mono);
+  color: var(--ink-dim);
+  min-height: 1.4em;
+  text-align: right;
+}
+.status[data-tone="hit"]  { color: var(--hit); }
+.status[data-tone="sunk"] { color: var(--sunk); }
+.status[data-tone="bad"]  { color: var(--bad); }
+
+main { padding: clamp(16px, 3vw, 30px); }
+
+/* ── views ───────────────────────────────────────────────────────────── */
+
+.view { display: none; gap: 20px; align-items: start; }
+
+html[data-view="setup"] .view--setup,
+html[data-view="play"]  .view--play,
+html[data-view="watch"] .view--watch { display: grid; }
+
+.view--setup { grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); }
+.view--play  { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(250px, 310px); }
+.view--watch { grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(0, 1fr); }
+
+@media (max-width: 1080px) {
+  .view--setup, .view--play, .view--watch { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── panels ──────────────────────────────────────────────────────────── */
+
+.panel {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--grid-line);
+  border-radius: var(--radius);
+  padding: 16px 18px 18px;
+  box-shadow: var(--shadow);
+}
+
+.panel__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.panel__title em {
+  margin-left: auto;
+  font: 12px/1 var(--mono);
+  font-style: normal;
+  color: var(--ink-faint);
+}
+
+.hint { margin: 0 0 14px; color: var(--ink-dim); font-size: 13px; }
+.hint--tight { margin: -6px 0 12px; font-size: 12px; }
+#watch-note { margin-top: 2px; }
+
+kbd {
+  font: 11px/1 var(--mono);
+  border: 1px solid var(--grid-line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 3px 5px;
+  background: var(--bg);
+  color: var(--ink-dim);
+}
+
+.rule { border: 0; border-top: 1px solid var(--grid-line); margin: 16px 0; }
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+/* ── controls ────────────────────────────────────────────────────────── */
+
+.btn {
+  flex: 1;
+  min-width: fit-content;
+  border: 1px solid var(--grid-line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font: inherit;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .06s;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); background: var(--water-hi); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .38; cursor: not-allowed; }
+
+.btn--go {
+  width: 100%;
+  margin-top: 6px;
+  background: color-mix(in oklab, var(--accent) 20%, var(--panel-2));
+  border-color: color-mix(in oklab, var(--accent) 44%, transparent);
+  color: #eaf7ff;
+  font-weight: 600;
+}
+.btn--go:hover:not(:disabled) { background: color-mix(in oklab, var(--accent) 32%, var(--panel-2)); }
+
+.field {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+
+select, input[type="number"] {
+  width: 100%;
+  border: 1px solid var(--grid-line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  padding: 8px 10px;
+}
+select:focus-visible, input:focus-visible, .btn:focus-visible, .tab:focus-visible,
+.cell:focus-visible, .ship:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  background: transparent;
+}
+
+.toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  color: var(--ink-dim);
+}
+.toggle input { accent-color: var(--accent); }
+.toggle[data-disabled] { opacity: .35; cursor: not-allowed; }
+
+/* ── the ship roster ─────────────────────────────────────────────────── */
+
+.roster { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 7px; }
+
+.ship {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid var(--grid-line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  padding: 8px 11px;
+  cursor: grab;
+  transition: border-color .15s, background .15s, opacity .15s;
+}
+.ship:hover:not([data-placed]) { border-color: var(--accent); }
+.ship[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 13%, var(--bg));
+}
+.ship[data-placed] { opacity: .45; cursor: default; }
+.ship__name { flex: 1; }
+.ship__pips { display: flex; gap: 2px; }
+.ship__pips i { width: 9px; height: 9px; border-radius: 2px; background: var(--ship); }
+.ship[data-placed] .ship__pips i { background: var(--ok); }
+
+/* ── boards ──────────────────────────────────────────────────────────── */
+
+.board {
+  width: 100%;
+  max-width: min(58vh, 520px);
+  margin-inline: auto;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: 1.1em repeat(var(--n, 10), 1fr);
+  grid-template-rows:    1.1em repeat(var(--n, 10), 1fr);
+  gap: var(--gap);
+  container-type: inline-size;
+}
+
+.axis {
+  display: grid;
+  place-items: center;
+  font: 600 clamp(9px, 1.7cqi, 12px)/1 var(--mono);
+  color: var(--ink-faint);
+  transition: color .12s;
+}
+.axis[data-lit] { color: var(--accent); }
+
+.cell {
+  border: 1px solid var(--grid-line);
+  border-radius: 3px;
+  background: var(--water);
+  padding: 0;
+  cursor: default;
+  position: relative;
+  transition: background .16s, border-color .16s, box-shadow .16s;
+}
+
+.cell[data-state="ship"] {
+  background: var(--ship);
+  border-color: color-mix(in oklab, var(--ship) 60%, var(--ink));
+}
+.cell[data-state="miss"] { background: var(--panel); }
+.cell[data-state="miss"]::after {
+  content: "";
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: var(--miss);
+}
+.cell[data-state="hit"] {
+  background: color-mix(in oklab, var(--hit) 26%, var(--water));
+  border-color: var(--hit);
+}
+.cell[data-state="hit"]::after,
+.cell[data-state="sunk"]::after {
+  content: "";
+  position: absolute;
+  inset: 26%;
+  border-radius: 2px;
+  background: var(--hit);
+}
+.cell[data-state="sunk"] {
+  background: color-mix(in oklab, var(--sunk) 40%, var(--water));
+  border-color: var(--sunk);
+}
+.cell[data-state="sunk"]::after { background: #ffd7d7; opacity: .85; }
+
+/* live board: the one you can actually shoot at */
+.board--live .cell:not([data-state="hit"]):not([data-state="miss"]):not([data-state="sunk"]) {
+  cursor: crosshair;
+}
+.board--live .cell:hover:not([data-state="hit"]):not([data-state="miss"]):not([data-state="sunk"]) {
+  background: var(--water-hi);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent);
+}
+
+/* the crosshair rails — hovering a cell dims a line back to the labels */
+.cell[data-rail] { background: var(--water-hi); }
+.cell[data-rail][data-state="ship"] { background: color-mix(in oklab, var(--ship) 80%, var(--accent)); }
+
+/* placement ghost */
+.cell[data-ghost="ok"]  { background: color-mix(in oklab, var(--ok) 34%, var(--water));  border-color: var(--ok); }
+.cell[data-ghost="bad"] { background: color-mix(in oklab, var(--bad) 30%, var(--water)); border-color: var(--bad); }
+
+/* heatmap overlay — alpha only, so hits and misses read through it */
+.cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: var(--heat);
+  opacity: calc(var(--heat-level, 0) * 0.72);
+  transition: opacity .25s;
+  pointer-events: none;
+}
+
+/* ── fleet status ────────────────────────────────────────────────────── */
+
+.fleet { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 5px; }
+
+.fleet li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.fleet .bar {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg);
+  overflow: hidden;
+}
+.fleet .bar i {
+  display: block;
+  height: 100%;
+  width: var(--dmg, 0%);
+  background: var(--hit);
+  transition: width .3s ease;
+}
+.fleet li[data-sunk] { color: var(--sunk); text-decoration: line-through; }
+.fleet li[data-sunk] .bar i { background: var(--sunk); }
+
+/* ── log ─────────────────────────────────────────────────────────────── */
+
+.log {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  max-height: min(52vh, 460px);
+  overflow-y: auto;
+  font: 12.5px/1.7 var(--mono);
+  display: flex;
+  flex-direction: column-reverse;
+}
+.log li { display: flex; gap: 8px; padding: 2px 0; border-bottom: 1px solid rgb(28 43 61 / 0.5); }
+.log b { color: var(--ink-faint); font-weight: 500; min-width: 3.4em; }
+.log[data-empty]::before { content: "No shots yet."; color: var(--ink-faint); }
+.log li[data-by="you"] b { color: var(--accent); }
+.log li[data-hit]  { color: var(--hit); }
+.log li[data-sunk] { color: var(--sunk); font-weight: 600; }
+
+/* ── end banner ──────────────────────────────────────────────────────── */
+
+.banner[hidden] { display: none; }
+
+.banner {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(4 7 11 / 0.78);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  animation: fade .3s ease;
+}
+.banner__card {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--grid-line);
+  border-radius: 14px;
+  padding: 30px 34px;
+  text-align: center;
+  max-width: 380px;
+  box-shadow: var(--shadow);
+}
+.banner__card h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: .02em; }
+.banner__card p { margin: 0 0 20px; color: var(--ink-dim); }
+.banner[data-outcome="won"]  h2 { color: var(--ok); }
+.banner[data-outcome="lost"] h2 { color: var(--bad); }
+
+/* ── motion ──────────────────────────────────────────────────────────── */
+
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+
+@keyframes splash {
+  from { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 60%, transparent); }
+  to   { box-shadow: 0 0 0 14px transparent; }
+}
+@keyframes flare {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--hit) 85%, transparent); }
+  100% { box-shadow: 0 0 0 16px transparent; }
+}
+@keyframes settle {
+  0%, 100% { transform: none; }
+  40%      { transform: scale(1.13); }
+}
+
+.cell[data-fx="miss"] { animation: splash .55s ease-out; }
+.cell[data-fx="hit"]  { animation: flare .55s ease-out; }
+.cell[data-fx="sunk"] { animation: flare .55s ease-out, settle .5s ease-out; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001s !important;
+    transition-duration: .001s !important;
+  }
+}

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" data-view="setup">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battleships</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>%F0%9F%9A%A2</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <h1 class="brand">Battle<span>ships</span></h1>
+  <nav class="tabs" id="tabs">
+    <button class="tab" data-goto="setup" aria-pressed="true">Play</button>
+    <button class="tab" data-goto="watch" aria-pressed="false">Watch</button>
+  </nav>
+  <p class="status" id="status" role="status"></p>
+</header>
+
+<main>
+
+<!-- ── setup ─────────────────────────────────────────────────────────── -->
+<section class="view view--setup" aria-label="Set up your fleet">
+  <div class="panel panel--setup">
+    <h2 class="panel__title">Deploy your fleet</h2>
+    <p class="hint">
+      Pick a ship, then click the water to drop it.
+      Press <kbd>R</kbd> or right-click to rotate.
+    </p>
+
+    <ul class="roster" id="roster"></ul>
+
+    <div class="row">
+      <button class="btn" id="rotate">Rotate <kbd>R</kbd></button>
+      <button class="btn" id="scatter">Scatter</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+
+    <hr class="rule">
+
+    <label class="field">
+      <span>Opponent</span>
+      <select id="opponent"></select>
+    </label>
+    <p class="hint hint--tight" id="opponent-note"></p>
+
+    <label class="field">
+      <span>Enemy layout</span>
+      <select id="layout"></select>
+    </label>
+
+    <button class="btn btn--go" id="start" disabled>Start the game</button>
+  </div>
+
+  <div class="panel panel--board">
+    <h2 class="panel__title">Your waters</h2>
+    <div class="board" id="setup-board"></div>
+  </div>
+</section>
+
+<!-- ── play ──────────────────────────────────────────────────────────── -->
+<section class="view view--play" aria-label="Game in progress">
+  <div class="panel panel--board">
+    <h2 class="panel__title">
+      Your fleet
+      <label class="toggle" id="heat-toggle">
+        <input type="checkbox" id="heat"> <span>AI's read</span>
+      </label>
+    </h2>
+    <div class="board board--mine" id="board-mine"></div>
+    <ul class="fleet" id="fleet-mine"></ul>
+  </div>
+
+  <div class="panel panel--board">
+    <h2 class="panel__title">Enemy waters <em id="turn-label"></em></h2>
+    <div class="board board--theirs board--live" id="board-theirs"></div>
+    <ul class="fleet" id="fleet-theirs"></ul>
+  </div>
+
+  <div class="panel panel--log">
+    <h2 class="panel__title">Log</h2>
+    <p class="hint hint--tight" id="game-outcome" hidden></p>
+    <div id="game-replay" hidden>
+      <div class="row">
+        <button class="btn" id="game-playpause">Play</button>
+        <button class="btn" id="game-rewind">Reset</button>
+      </div>
+      <label class="field"><span>Speed</span>
+        <input type="range" id="game-speed" min="1" max="60" value="18">
+      </label>
+      <label class="field"><span>Step</span>
+        <input type="range" id="game-scrub" min="0" max="0" value="0">
+      </label>
+      <div class="row">
+        <button class="btn" id="game-step-back" aria-label="Previous step">← Step</button>
+        <button class="btn" id="game-step-next" aria-label="Next step">Step →</button>
+      </div>
+    </div>
+    <ol class="log" id="log"></ol>
+    <button class="btn" id="again">New game</button>
+  </div>
+</section>
+
+<!-- ── watch ─────────────────────────────────────────────────────────── -->
+<section class="view view--watch" aria-label="Watch two strategies race">
+  <div class="panel panel--controls">
+    <h2 class="panel__title">Race</h2>
+    <label class="field"><span>Left</span><select id="watch-a"></select></label>
+    <label class="field"><span>Right</span><select id="watch-b"></select></label>
+    <label class="field"><span>Layout</span><select id="watch-layout"></select></label>
+    <label class="field"><span>Seed</span><input type="number" id="seed" value="42" min="0"></label>
+    <button class="btn btn--go" id="race">Run simulation</button>
+
+    <div id="watch-replay" hidden>
+      <hr class="rule">
+
+      <div class="row">
+        <button class="btn" id="playpause">Play</button>
+        <button class="btn" id="rewind">Reset</button>
+      </div>
+      <label class="field"><span>Speed</span>
+        <input type="range" id="speed" min="1" max="60" value="18">
+      </label>
+      <label class="field"><span>Step</span>
+        <input type="range" id="scrub" min="0" max="0" value="0">
+      </label>
+      <div class="row">
+        <button class="btn" id="step-back" aria-label="Previous step">← Step</button>
+        <button class="btn" id="step-next" aria-label="Next step">Step →</button>
+      </div>
+    </div>
+    <p class="hint hint--tight" id="watch-note">Pick two strategies and run. Use Run simulation again any time to rerun.</p>
+  </div>
+
+  <div class="panel panel--board">
+    <h2 class="panel__title"><span id="name-a">—</span> <em id="shots-a"></em></h2>
+    <div class="board" id="watch-board-a"></div>
+  </div>
+
+  <div class="panel panel--board">
+    <h2 class="panel__title"><span id="name-b">—</span> <em id="shots-b"></em></h2>
+    <div class="board" id="watch-board-b"></div>
+  </div>
+</section>
+
+</main>
+
+<div class="banner" id="banner" hidden>
+  <div class="banner__card">
+    <h2 id="banner-title"></h2>
+    <p id="banner-body"></p>
+    <button class="btn btn--go" id="banner-ok">New game</button>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

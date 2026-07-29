@@ -11,6 +11,8 @@ const (
 	hitWeight = 16
 )
 
+var _ Scorer = (*Density)(nil)
+
 type Density struct {
 	rng *rand.Rand
 
@@ -59,6 +61,15 @@ func (d *Density) Next() game.Position {
 	d.shot[best] = true
 
 	return game.Position{Row: best / game.BoardSize, Col: best % game.BoardSize}
+}
+
+// Scores exposes the same table Next picks its argmax from. rescore rebuilds
+// it from the observations alone, so asking costs a recount but changes
+// nothing the strategy will do next.
+func (d *Density) Scores() Grid {
+	d.rescore()
+
+	return normalize(d.score, d.shot)
 }
 
 func (d *Density) rescore() {

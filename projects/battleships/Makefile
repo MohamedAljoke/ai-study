@@ -2,10 +2,13 @@ GAMES ?= 5000
 TRACE_GAMES ?= 3
 PKG ?= ./...
 
-.PHONY: play matrix bench traces test fmt vet check clean
+.PHONY: play serve matrix bench traces test fmt vet check clean
 
 play:
 	go run ./cmd/play
+
+serve:
+	go run ./cmd/server -addr :8080
 
 matrix:
 	go test ./internal/bench -run TestMatrix -games $(GAMES) -v
